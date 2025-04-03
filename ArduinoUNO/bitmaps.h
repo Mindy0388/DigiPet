@@ -142,9 +142,10 @@ const unsigned char happyPet[] PROGMEM = {};
 
 
 //16x16
-const unsigned char heartParticle[] PROGMEM = {
+const unsigned char heartBitmap[] PROGMEM = {
 
 };
+
 
 
 #endif
