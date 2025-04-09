@@ -33,10 +33,14 @@ Adafruit_SSD1306 display(
 //Adafruit_MPU6050 mpu
 
 
+//Pet state vars
 enum PetState { IDLE, HAPPY };
-//PetState currentState = IDLE;
+PetState currentState = IDLE;
 bool isBeingPetted = false;
-
+//IDLE
+unsigned long lastIdleAnimTime = 0;
+int idleFrame = 0;
+//HAPPY
 unsigned long lastSpawn = 0;
 
 //The setup function
@@ -75,6 +79,12 @@ void readSensors (){
 
 void updatePetState() {
 
+  //If IDLE, just update the animation and skip everything else
+  if (currentState == IDLE) {
+    showIdleAnimation();
+    return;
+  }
+
   //Generate heart particles while being petted
   if (isBeingPetted && millis() - lastSpawn >= 500) {
     lastSpawn = millis();
@@ -84,6 +94,29 @@ void updatePetState() {
   updateHearts();
   drawHearts();
 
+}
+
+//IDLE
+void showIdleAnimation() {
+  unsigned long currentMillis = millis();
+  if (currentMillis - lastIdleAnimTime >= 300) {  // Change frame every 300ms
+    lastIdleAnimTime = currentMillis;
+
+    display.clearDisplay();
+    switch (idleFrame) {
+      case 0:
+        display.drawBitmap(32, 0, idlePet_1, 64, 64, WHITE);
+        break;
+      case 1:
+        display.drawBitmap(32, 0, idlePet_2, 64, 64, WHITE);
+        break;
+      case 2:
+        display.drawBitmap(32, 0, idlePet_3, 64, 64, WHITE);
+        break;
+    }
+    display.display();
+    idleFrame = (idleFrame + 1) % 3;
+  }
 }
 
 // Heart Codes
