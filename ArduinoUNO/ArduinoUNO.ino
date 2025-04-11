@@ -10,7 +10,7 @@
 //#define ECG_ANALOG = 1
 
 //TTP223B Capative Touch Sensor
-#define TOUCH_PIN     19
+#define TOUCH_PIN     13
 
 // Screen dimensions
 #define SCREEN_WIDTH  128
@@ -34,14 +34,19 @@ Adafruit_SSD1306 display(
 
 
 //Pet state vars
-enum PetState { IDLE, HAPPY };
+enum PetState { IDLE, HAPPY, DIZZY };
 PetState currentState = IDLE;
-bool isBeingPetted = false;
 //IDLE
 unsigned long lastIdleAnimTime = 0;
 int idleFrame = 0;
 //HAPPY
-unsigned long lastSpawn = 0;
+unsigned long lastSpawn = 0; //Heart spawn
+bool isBeingPetted = false;
+//DIZZY
+unsigned long dizzyStartTime = 0;
+bool isDizzy = false;
+
+uint32_t now = 0; //Timer
 
 //The setup function
 void setup() {
@@ -53,16 +58,10 @@ void setup() {
     for(;;); // Don't proceed, loop forever
   }
 
-  // Display bitmap
+  // Display clear
   display.clearDisplay();
-  display.drawBitmap(0, 0, testBitmap, 128, 64, 1);
-  display.display();
-
-  //Pin modes
-  pinMode(TOUCH_PIN, INPUT);
 }
 
-uint32_t now = 0; //Timer
 
 void loop() {
   readSensors();
@@ -72,12 +71,17 @@ void loop() {
 
 void readSensors (){
   // Read touch sensor
-  isBeingPetted = (touchRead(TOUCH_PIN) < 20); // Lower value = touched
+  isBeingPetted = (digitalRead(TOUCH_PIN) ? true : false); // Low signal = touched
 }
 
 
 
 void updatePetState() {
+
+  //If being petted, update the state
+  if (isBeingPetted){
+    currentState = HAPPY;
+  }
 
   //If IDLE, just update the animation and skip everything else
   if (currentState == IDLE) {
@@ -120,9 +124,8 @@ void showIdleAnimation() {
 }
 
 // Heart Codes
-#define MAX_HEARTS 20
-#define HEART_WIDTH  16
-#define HEART_HEIGHT 16
+
+#define MAX_HEARTS 10 //Max amount of hearts on screen
 
 struct Heart {
   int x, y;
@@ -137,7 +140,13 @@ void spawnHearts(int count) {
     if (!hearts[i].active) {
       hearts[i].x = random(0, display.width() - HEART_WIDTH);
       hearts[i].y = display.height(); // bottom
-      hearts[i].dy = random(1, 3);    // gentle upward speed
+
+      //randomize dy with skew to 1
+      int r = random(0, 100);
+      if (r < 60) hearts[i].dy = 1;
+      else if (r < 90) hearts[i].dy = 2;
+      else hearts[i].dy = 3;
+
       hearts[i].active = true;
       count--;
     }
