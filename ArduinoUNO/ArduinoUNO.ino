@@ -2,8 +2,10 @@
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include <MPU6050.h>
 
-#include "bitmaps.h"   //Store the oled bitmaps
+#include "bitmaps.h"      //Store the oled bitmaps
+#include "animations.h"   //Animations
 
 
 //AD8232 Heartrate Monitor
@@ -30,23 +32,27 @@ Adafruit_SSD1306 display(
 );
 
 //MPU6050 Gyroscope
-//Adafruit_MPU6050 mpu
+//Adafruit_MPU6050 gyro
+
+//Button
+const int buttonPin = 7;
+bool buttonPressed = false;
 
 
 //Pet state vars
 enum PetState { IDLE, HAPPY, DIZZY };
 PetState currentState = IDLE;
-//IDLE
-unsigned long lastIdleAnimTime = 0;
-int idleFrame = 0;
+
 //HAPPY
 unsigned long lastSpawn = 0; //Heart spawn
 bool isBeingPetted = false;
+unsigned long happyTimer = 0;
+const unsigned long happyDuration = 1500;  // 1.5 seconds of happiness
 //DIZZY
 unsigned long dizzyStartTime = 0;
-bool isDizzy = false;
+const unsigned long dizzyDuration = 600;
 
-uint32_t now = 0; //Timer
+
 
 //The setup function
 void setup() {
@@ -58,6 +64,9 @@ void setup() {
     for(;;); // Don't proceed, loop forever
   }
 
+  //Set button pin to input mode
+  pinMode(buttonPin, INPUT_PULLUP); 
+
   // Display clear
   display.clearDisplay();
 }
@@ -65,63 +74,79 @@ void setup() {
 
 void loop() {
   readSensors();
-
   updatePetState();
 }
+
 
 void readSensors (){
   // Read touch sensor
   isBeingPetted = (digitalRead(TOUCH_PIN) ? true : false); // Low signal = touched
+
+  // Read button (active LOW)
+  if (digitalRead(buttonPin) == LOW && currentState != DIZZY) {
+    currentState = DIZZY;
+    dizzyStartTime = millis();
+    clearHearts();  // Clear all existing hearts
+  }
 }
 
 
 
 void updatePetState() {
+  // Clear once per frame
+  display.clearDisplay();
 
-  //If being petted, update the state
-  if (isBeingPetted){
-    currentState = HAPPY;
-  }
+  //DIZZY > HAPPY > IDLE
 
-  //If IDLE, just update the animation and skip everything else
-  if (currentState == IDLE) {
-    showIdleAnimation();
+  //DIZZY
+  if (currentState == DIZZY) {
+    showDizzyAnimation(false);
+
+    // Exit dizzy after timeout
+    if (millis() - dizzyStartTime >= dizzyDuration) {
+      currentState = IDLE;
+    }
+
+    //Remove all heart particles
+
+
+    display.display();  // Early return so no other drawing happens
     return;
   }
 
-  //Generate heart particles while being petted
-  if (isBeingPetted && millis() - lastSpawn >= 500) {
+
+  // Check for petting and update timer
+  if (isBeingPetted) {
+    happyTimer = millis();  // Reset happy timer
+  }
+
+
+  // If happy timer still running, display happy animation
+  if (millis() - happyTimer < happyDuration) {
+    showHappyAnimation(false);
+  } else {
+    showIdleAnimation(false);
+  }
+
+  
+
+  // Spawn hearts if currently being petted
+  if (isBeingPetted && millis() - lastSpawn >= 200) {
     lastSpawn = millis();
     spawnHearts(1 + random(3)); // spawn 1–3 new hearts
   }
 
+  // Update and render all hearts
   updateHearts();
   drawHearts();
 
+  // Final display
+  display.display();
 }
 
-//IDLE
-void showIdleAnimation() {
-  unsigned long currentMillis = millis();
-  if (currentMillis - lastIdleAnimTime >= 300) {  // Change frame every 300ms
-    lastIdleAnimTime = currentMillis;
 
-    display.clearDisplay();
-    switch (idleFrame) {
-      case 0:
-        display.drawBitmap(32, 0, idlePet_1, 64, 64, WHITE);
-        break;
-      case 1:
-        display.drawBitmap(32, 0, idlePet_2, 64, 64, WHITE);
-        break;
-      case 2:
-        display.drawBitmap(32, 0, idlePet_3, 64, 64, WHITE);
-        break;
-    }
-    display.display();
-    idleFrame = (idleFrame + 1) % 3;
-  }
-}
+
+
 
 // Heart Codes
 
@@ -165,12 +190,17 @@ void updateHearts() {
 }
 
 void drawHearts() {
-  display.clearDisplay();
   for (int i = 0; i < MAX_HEARTS; i++) {
     if (hearts[i].active) {
       display.drawBitmap(hearts[i].x, hearts[i].y, heartBitmap, HEART_WIDTH, HEART_HEIGHT, SSD1306_WHITE);
     }
   }
   display.display();
+}
+
+void clearHearts() {
+  for (int i = 0; i < MAX_HEARTS; i++) {
+    hearts[i].active = false;
+  }
 }
 
