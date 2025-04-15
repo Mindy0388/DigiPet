@@ -1,7 +1,7 @@
 # 🐱 DigiPet – Your Pixel Cat Companion on ESP32
 
 DigiPet is an interactive virtual pet designed to bring joy and cuteness into the palm of your hand! 🧸  
-Built with an ESP32, OLED display, sensors, and animated pixel art, this project turns hardware into personality.
+[Youtube Demo](https://www.youtube.com/watch?v=DKkr827IOmU)
 
 ---
 
@@ -11,8 +11,6 @@ Built with an ESP32, OLED display, sensors, and animated pixel art, this project
 - **Gyroscope Reaction** – Shake the ESP32 and your cat gets dizzy! 🤪
 - **Touch Sensor Happiness** – Touch the pet to make it happy and spawn animated hearts 💓
 - **Joystick Laser Game** – Control a laser dot and watch the cat chase it! 🕹️✨
-![Happy Cat](media/happy.gif)
-![Chasing Laser](media/chase.gif)
 
 ---
 
@@ -29,12 +27,10 @@ Built with an ESP32, OLED display, sensors, and animated pixel art, this project
 ## 🛠️ Hardware Used
 
 - ESP32 Dev Board
-- 0.96” I2C OLED Display (SSD1306)
+- 0.96” 128*64 I2C OLED Display (SSD1306)
 - MPU6050 Gyroscope
 - Capacitive Touch Sensor
 - Joystick Module
-
-![Build](media/build.jpg)
 
 ---
 
