@@ -542,6 +542,13 @@ const unsigned char happyPet[] PROGMEM = {
 };
 
 
+
+//CATCHY
+const unsigned char vigilantPet[] PROGMEM = {};
+const unsigned char catchLeftCat[] PROGMEM = {};
+const unsigned char catchRightCat[] PROGMEM = {};
+
+
 //Heart 17x14
 #define HEART_WIDTH  24 //try 17
 #define HEART_HEIGHT 14
