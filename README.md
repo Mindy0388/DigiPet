@@ -11,7 +11,6 @@ Built with an ESP32, OLED display, sensors, and animated pixel art, this project
 - **Gyroscope Reaction** – Shake the ESP32 and your cat gets dizzy! 🤪
 - **Touch Sensor Happiness** – Touch the pet to make it happy and spawn animated hearts 💓
 - **Joystick Laser Game** – Control a laser dot and watch the cat chase it! 🕹️✨
-
 ![Happy Cat](media/happy.gif)
 ![Chasing Laser](media/chase.gif)
 
@@ -49,7 +48,7 @@ Built with an ESP32, OLED display, sensors, and animated pixel art, this project
 
 ## 🎨 Pixel Art
 
-All pixel assets are drawn in [Aseprite](https://www.aseprite.org/) and converted to byte arrays using Binary Converter ([https://www.dcode.fr/binary-image](url)) and custom scripts.
+All pixel assets are drawn in [Aseprite](https://www.aseprite.org/) and converted to byte arrays using [Image to Binary Converter](https://www.dcode.fr/binary-image) and custom scripts.
 
 ---
 
