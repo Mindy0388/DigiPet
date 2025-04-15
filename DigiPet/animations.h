@@ -12,6 +12,8 @@ void showIdleAnimation      (bool shouldDisplay = true);
 void showHappyAnimation     (bool shouldDisplay = true);
 void showDizzyAnimation     (bool shouldDisplay = true);
 void showVigilantAnimation  (bool shouldDisplay = true);
+void showCatchLeftFollowingDot();
+void showCatchRightFollowingDot();
 
 
 #endif

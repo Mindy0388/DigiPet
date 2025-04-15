@@ -1,14 +1,24 @@
 #include "animations.h"
 
-//IDLE
+// IDLE
 unsigned long lastIdleAnimTime = 0;
 int idleFrame = 0;
 
-//DIZZY
+//HAPPY
+
+// DIZZY
 unsigned long lastDizzyAnimTime = 0;
 int dizzyFrame = 0;
 
-//IDLE
+// CATCH
+extern unsigned long catchAnimTime;
+int catchFrame = 0; 
+extern int dotX;
+extern int dotY;
+extern int catX;
+extern int catY;
+
+// IDLE
 void showIdleAnimation(bool shouldDisplay) {
 
     unsigned long currentMillis = millis();
@@ -32,20 +42,24 @@ void showIdleAnimation(bool shouldDisplay) {
     if (shouldDisplay) display.display();
 }
 
-//HAPPY
-void showHappyAnimation(bool shouldDisplay) {
-     display.drawBitmap(32, 0, happyPet, 64, 64, WHITE);
-     if (shouldDisplay) display.display();
+// HAPPY
+void showHappyAnimation(bool isBeingPetted) {
+  if(isBeingPetted) {
+    display.drawBitmap(32, 0, petPet, 64, 64, WHITE);
+  }
+  else {
+    display.drawBitmap(32, 0, happyPet, 64, 64, WHITE);
+  }
 }
 
-//DIZZY
+// DIZZY
 void showDizzyAnimation(bool shouldDisplay) {
   unsigned long currentMillis = millis();
 
-  // Update frame index every 100ms
-    if (currentMillis - lastDizzyAnimTime >= 100) {
-        lastDizzyAnimTime = currentMillis;
-        idleFrame = (idleFrame + 1) % 4;
+  // Update frame index every 200ms
+    if (currentMillis - lastDizzyAnimTime >= 200) {
+      lastDizzyAnimTime = currentMillis;
+      dizzyFrame = (dizzyFrame + 1) % 4;
     }
 
   // Always draw the current frame  
@@ -64,9 +78,39 @@ void showDizzyAnimation(bool shouldDisplay) {
   if (shouldDisplay) display.display();
 }
 
-//CATCH
+// VIGIL
 void showVigilantAnimation(bool shouldDisplay) {
   display.drawBitmap(32, 0, vigilantPet, 64, 64, WHITE);
   if (shouldDisplay) display.display();
+}
+
+//CATCH
+void showCatchLeftFollowingDot() {
+  if (millis() - catchAnimTime >= 500) {
+    catchFrame = (catchFrame + 1) % 2;
+    catchAnimTime = millis();
+  }
+
+  const unsigned char* frame = (catchFrame == 0) ? catchLeftCat_1 : catchLeftCat_2;
+
+  display.drawBitmap(catX, catY, frame, 64, 32, WHITE);
+}
+
+
+void showCatchRightFollowingDot() {
+  if (millis() - catchAnimTime >= 500) {
+    catchFrame = (catchFrame + 1) % 2;
+    catchAnimTime = millis();
+  }
+
+  const unsigned char* frame = (catchFrame == 0) ? catchRightCat_1 : catchRightCat_2;
+
+  int drawX = (catX - 64 + 4);
+  int drawY = catY;
+
+  // fix laggy
+  drawX = max(drawX, -63);  // only draw what can be seen
+
+  display.drawBitmap(drawX, drawY, frame, 64, 32, WHITE);
 }
 
